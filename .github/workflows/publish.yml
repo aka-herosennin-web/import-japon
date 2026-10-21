@@ -1,13 +1,10 @@
-
-name: Actualiser et publier le catalogue
-
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: '15 6 * * *'
+workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['site/**']
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -16,18 +13,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Générer le site depuis API
-        run: python build.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
