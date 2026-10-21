@@ -8,4 +8,4 @@ Site statique : éditions de jeux importées d'Asie, langues incluses et compati
 - `donnees/catalogue-v4.json` : ancien catalogue (liste de liens), conservé pour référence.
 - `.github/workflows/publish.yml` : publie `site/` à chaque modification de ce dossier, sans régénération.
 
-Le site est en `noindex` tant que l'option n'est pas décochée dans les Réglages du générateur.
+Le site est ouvert à l’indexation (sitemap : `site/sitemap.xml`). Test SEO de 90 jours démarré le 21/10/2026.

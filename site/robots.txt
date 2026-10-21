@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://aka-herosennin-web.github.io/import-japon/sitemap.xml
