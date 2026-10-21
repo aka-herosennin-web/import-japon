@@ -1,6 +1,6 @@
 {
  "settings": {
-  "titre": "Jeux japonais en français",
+  "titre": "Import Japon",
   "aff": "971294",
   "noindex": true,
   "base": "https://aka-herosennin-web.github.io/import-japon/",
@@ -43,7 +43,8 @@
    "prix": "27,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1fy/tales-of-eternia-remastered-multilanguage-935247.10.jpg?v=tgg27c",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa02c",
@@ -77,7 +78,8 @@
    "prix": "35,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1es/another-eden-begins-nintendo-switch-2-edition-914295.6.jpg?v=td9use",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa03c",
@@ -115,7 +117,8 @@
    "prix": "54,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1d4/indiana-jones-and-the-great-circle-multilanguage-884361.9.jpg?v=tbts1w",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa04c",
@@ -153,7 +156,8 @@
    "prix": "51,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1fy/lies-of-p-complete-edition-multilanguage-935181.11.jpg?v=tgrpju",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa07c",
@@ -185,7 +189,8 @@
    "prix": "37,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1ft/muchi-muchi-pork-pinksweets-boosted-932855.10.jpg?v=tfxqsg",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa08c",
@@ -218,7 +223,8 @@
    "prix": "63,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/163/baldurs-gate-3-multilanguage-757757.8.jpg?v=s3jk7g",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa09c",
@@ -251,7 +257,8 @@
    "prix": "39,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1cb/corpse-party-tetralogy-pack-869703.1.jpg?v=swp2zo",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa10c",
@@ -287,7 +294,8 @@
    "prix": "49,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1dl/tokyo-xtreme-racer-892625.6.jpg?v=t6dcbi",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa11",
@@ -325,7 +333,8 @@
    "prix": "31,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1ev/castlevania-belmonts-curse-midnight-edition-multilanguage-915523.10.jpg?v=tiirl8",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa12",
@@ -359,7 +368,8 @@
    "prix": "49,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1dk/shin-sangoku-musou-2-with-xtreme-legends-remastered-multilanguag-892137.7.jpg?v=tg1a0u",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa16",
@@ -389,7 +399,8 @@
    "prix": "2106,98 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/gallery/350/GA.07993.0007.jpg?1727691016&v=PX-974",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa17",
@@ -419,7 +430,8 @@
    "prix": "1399,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1e0/steam-machine-512gb-900029.1.jpg?v=t5um5o",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa18",
@@ -449,7 +461,8 @@
    "prix": "1165,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/5u/pa.105368.1.png?v=jo6r5o",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa19",
@@ -479,7 +492,8 @@
    "prix": "1138,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/16z/ayaneo-2-1tb-ssd-16gb-starry-black-773853.1.jpg?v=s1mwjj",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa20",
@@ -509,7 +523,8 @@
    "prix": "1129,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/ab/pa.185545.1.png?v=l9dwb1",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa21",
@@ -539,7 +554,8 @@
    "prix": "949,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/dc/pa.240217.1.jpg?v=m7ejo0",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa22",
@@ -569,7 +585,8 @@
    "prix": "918,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/c/pa.6072.1.png?v=hy2kns",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa23",
@@ -601,7 +618,8 @@
    "prix": "894,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/6v/pa.123699.3.png?v=k1ogj5",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa24",
@@ -638,7 +656,8 @@
    "prix": "",
    "prixDate": "",
    "jaquette": "https://s.pacn.ws/1/p/1bx/dark-souls-prepare-to-die-edition-862785.1.jpg?v=suhpqg",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa25",
@@ -670,7 +689,8 @@
    "prix": "105,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1fi/trails-in-the-sky-2nd-chapter-uroboros-box-927103.1.jpg?v=tdu25l",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa26",
@@ -708,7 +728,8 @@
    "prix": "45,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1ez/gunvolt-chronicles-luminous-avenger-ix-1-2-dual-collection-multi-917511.10.jpg?v=tb1toh",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa27",
@@ -746,7 +767,8 @@
    "prix": "48,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1fy/xenoblade-definitive-edition-nintendo-switch-2-edition-multilang-935339.1.jpg?v=tgg7af",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa28",
@@ -780,7 +802,8 @@
    "prix": "92,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1fu/933357.1.jpg?v=tg1a52",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa29",
@@ -816,7 +839,8 @@
    "prix": "41,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1f7/cotton-rock-with-you-multilanguage-921571.6.jpg?v=tcjh7n",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa30",
@@ -854,7 +878,8 @@
    "prix": "33,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1ev/castlevania-belmonts-curse-915521.13.jpg?v=tgcp0j",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa31",
@@ -887,7 +912,8 @@
    "prix": "49,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/10v/blaster-master-zero-trilogy-metafight-chronicle-english-663937.11.jpg?v=qx8uji",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa32",
@@ -917,7 +943,8 @@
    "prix": "41,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/v6/ketsui-deathtiny-kizuna-jigoku-tachi-561113.2.jpg?v=pd4qul",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa34",
@@ -955,7 +982,8 @@
    "prix": "45,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1ea/orbitals-multilanguage-905309.7.jpg?v=tgr98q",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa35",
@@ -993,7 +1021,8 @@
    "prix": "29,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1bv/kunitsugami-path-of-the-goddess-861519.9.jpg?v=svmaxi",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa36",
@@ -1023,7 +1052,8 @@
    "prix": "41,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/16j/dodonpachi-blissful-death-reincarnation-765961.5.jpg?v=rzd3og",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa37",
@@ -1056,7 +1086,8 @@
    "prix": "38,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/11w/super-robot-wars-30--682361.5.jpg?v=qw45ry",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa39",
@@ -1088,7 +1119,8 @@
    "prix": "71,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1fn/sullyland-nursery-rhyme-special-edition-929557.6.jpg?v=tkqace",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "premium"
   },
   {
    "id": "pa41",
@@ -1126,7 +1158,8 @@
    "prix": "53,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/10r/the-legend-of-zelda-skyward-sword-hd-english-661859.7.jpg?v=qoyjwd",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa42",
@@ -1163,7 +1196,8 @@
    "prix": "33,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1df/aca-neogeo-selection-vol-9-multilanguage-889617.1.jpg?v=t2tp9g",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa43",
@@ -1200,7 +1234,8 @@
    "prix": "35,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1d0/aca-neogeo-selection-vol-8-multilanguage-882139.1.jpg?v=t0nqrp",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa44",
@@ -1237,7 +1272,8 @@
    "prix": "41,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1c6/aca-neogeo-selection-vol-5-multilanguage-867365.1.jpg?v=svxixi",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa45",
@@ -1267,7 +1303,8 @@
    "prix": "23,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/xy/dr-kawashimas-brain-training-with-touch-pen-for-nintendo-switch-611151.1.jpg?v=pzglgf",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa47",
@@ -1301,7 +1338,8 @@
    "prix": "32,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/wj/dead-or-school-585633.3.jpg?v=pt0xmv",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa48",
@@ -1335,7 +1373,8 @@
    "prix": "55,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1fn/steinsgate-reboot-multilanguage-929567.10.jpg?v=tenu5z",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa49",
@@ -1373,7 +1412,8 @@
    "prix": "30,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/19q/the-exit-8-platform-8-multilanguage-823373.9.jpg?v=sj5xgv",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa50",
@@ -1411,7 +1451,8 @@
    "prix": "28,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/13j/ender-lilies-quietus-of-the-knights-711617.1.jpg?v=r8eok3",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa52",
@@ -1449,7 +1490,8 @@
    "prix": "38,99 $ US",
    "prixDate": "2026-10-21",
    "jaquette": "https://s.pacn.ws/1/p/1fy/dragons-dogma-2-dark-arisen-multilanguage-935389.8.webp?v=thl8ic",
-   "afficherJaquette": true
+   "afficherJaquette": true,
+   "collection": "populaire"
   },
   {
    "id": "pa01",
@@ -1487,7 +1529,8 @@
    "jaquette": "https://s.pacn.ws/1/p/1bt/mario-kart-world-860965.1.jpg?v=su4c40",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   },
   {
    "id": "pa02",
@@ -1525,7 +1568,8 @@
    "jaquette": "https://s.pacn.ws/1/p/1bu/metroid-prime-4-beyond-for-nintendo-switch-2-edition-multilangua-861025.10.jpg?v=t2m2ts",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   },
   {
    "id": "pa03",
@@ -1563,7 +1607,8 @@
    "jaquette": "https://s.pacn.ws/1/p/1fy/xenoblade-chronicles-2-nintendo-switch-2-edition-935347.10.jpg?v=tgg8nu",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   },
   {
    "id": "pa04",
@@ -1601,7 +1646,8 @@
    "jaquette": "https://s.pacn.ws/1/p/1ex/xenoblade-chronicles-x-definitive-edition-nintendo-switch-2-edit-916893.9.jpg?v=taxyax",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   },
   {
    "id": "pa05",
@@ -1639,7 +1685,8 @@
    "jaquette": "https://s.pacn.ws/1/p/1dd/fire-emblem-fortunes-weave-multilanguage-888625.16.jpg?v=tgpuvr",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   },
   {
    "id": "pa06",
@@ -1677,7 +1724,8 @@
    "jaquette": "https://s.pacn.ws/1/p/1ga/octopath-traveler-octopath-traveler-ii-bundle-multilanguage-941037.12.jpg?v=ti7htl",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   },
   {
    "id": "pa07",
@@ -1715,7 +1763,8 @@
    "jaquette": "https://s.pacn.ws/1/p/1g0/final-fantasy-x-x2-hd-remaster-multilanguage-936433.10.jpg?v=tgt3ca",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   },
   {
    "id": "pa08",
@@ -1751,7 +1800,8 @@
    "jaquette": "https://s.pacn.ws/1/p/vx/gyakuten-saiban-123-naruhodo-selection-574745.2.jpg?v=pltptq",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   },
   {
    "id": "pa09",
@@ -1789,7 +1839,8 @@
    "jaquette": "https://s.pacn.ws/1/p/14d/bayonetta-english-726987.1.jpg?v=rezpqy",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   },
   {
    "id": "pa10",
@@ -1827,7 +1878,8 @@
    "jaquette": "https://s.pacn.ws/1/p/1cq/fantasy-life-i-the-girl-who-steals-time-nintendo-switch-2-editi-877129.7.jpg?v=sz25pu",
    "afficherJaquette": true,
    "type": "jeu",
-   "alerte": ""
+   "alerte": "",
+   "collection": "populaire"
   }
  ]
 }
