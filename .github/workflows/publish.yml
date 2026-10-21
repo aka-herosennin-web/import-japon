@@ -1,4 +1,9 @@
-workflow_dispatch:
+name: Publier le site
+
+# Publie tel quel le contenu du dossier site/ (pages exportées du générateur).
+# Plus de régénération automatique : aucune exécution quotidienne.
+on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths: ['site/**']
