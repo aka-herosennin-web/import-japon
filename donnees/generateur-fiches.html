@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Générateur de fiches import</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--bg:#f4f3ef;--surface:#fff;--ink:#1d1d1f;--muted:#62666b;--line:#dedbd4;--accent:#c0392b;--accent-ink:#fff;
+--ok:#1e7a46;--ok-bg:#e8f5ed;--ko:#9a3412;--ko-bg:#fdeee6;--warn:#8a5a00;--warn-bg:#fff6e0;--field:#fbfaf8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121212;--surface:#1c1c1d;--ink:#f1f1f1;--muted:#a1a1a1;--line:#343434;
+--accent:#e2574c;--ok:#4ade80;--ok-bg:#15291d;--ko:#fb923c;--ko-bg:#2d1c12;--warn:#f5c451;--warn-bg:#2a2414;--field:#232324}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header h1{font-size:1.05rem;margin:0}
+header h1 span{color:var(--accent)}
+.bar{display:flex;flex-wrap:wrap;gap:6px}
+button,.btnlike{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 11px;border-radius:9px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.danger{color:var(--ko)}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr) minmax(0,1fr);gap:14px;padding:14px 16px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.panel h2{font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
+.list{display:flex;flex-direction:column;gap:6px}
+.item{text-align:left;border-radius:10px;padding:8px 10px;width:100%}
+.item[aria-current=true]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.item small{display:block;color:var(--muted)}
+.tag{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:6px;margin-top:3px}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}.tag.draft{background:var(--warn-bg);color:var(--warn)}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px;margin:0 0 12px}
+legend{font-weight:600;font-size:.9rem;padding:0 6px}
+label{display:block;font-size:.84rem;color:var(--muted);margin:8px 0 3px}
+input[type=text],input[type=url],input[type=date],select,textarea{width:100%;font:inherit;font-size:.92rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink)}
+textarea{min-height:92px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.checks{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:4px}
+.checks label{display:flex;gap:5px;align-items:center;margin:0;color:var(--ink);font-size:.88rem}
+.hint{font-size:.8rem;color:var(--muted);margin-top:3px}
+.msg{font-size:.84rem;border-radius:8px;padding:7px 10px;margin-top:6px}
+.msg.ok{background:var(--ok-bg);color:var(--ok)}.msg.ko{background:var(--ko-bg);color:var(--ko)}.msg.warn{background:var(--warn-bg);color:var(--warn)}
+.checklist{list-style:none;padding:0;margin:0 0 10px;font-size:.86rem}
+.checklist li{padding:3px 0}
+.checklist li::before{content:"✗ ";color:var(--ko);font-weight:700}
+.checklist li.done::before{content:"✓ ";color:var(--ok)}
+iframe{width:100%;height:calc(100vh - 150px);min-height:520px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.previewcol{align-self:stretch}.stickybox{position:sticky;top:66px}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);max-width:460px;width:calc(100% - 32px)}
+@media (max-width:1100px){.layout{grid-template-columns:220px minmax(0,1fr)}.previewcol{grid-column:1/-1}.stickybox{position:static}iframe{height:640px}}
+@media (max-width:720px){.layout{grid-template-columns:1fr}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Générateur de fiches import<span>.</span></h1>
+  <div class="bar">
+    <button id="bNew">+ Nouvelle fiche</button>
+    <button id="bSettings">Réglages</button>
+    <button id="bExportJson">Sauvegarder (JSON)</button>
+    <label class="btnlike" style="margin:0">Importer<input id="fImport" type="file" accept="application/json" hidden></label>
+    <button id="bExportSite" class="primary">Exporter le site (.zip)</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="panel">
+    <h2>Fiches</h2>
+    <div class="list" id="list"></div>
+  </aside>
+
+  <main class="panel">
+    <h2>Édition</h2>
+    <form id="form" autocomplete="off">
+      <fieldset><legend>Jeu et édition</legend>
+        <label for="type">Type de produit</label><select id="type"><option value="jeu">Jeu vidéo</option><option value="materiel">Matériel (console, PC portable…)</option><option value="collection">Carte / objet de collection</option></select>
+        <label for="titre">Titre</label><input id="titre" type="text" placeholder="Légendes Pokémon : Arceus">
+        <div class="row">
+          <div><label for="edition">Édition</label><input id="edition" type="text" placeholder="Édition japonaise multilingue"></div>
+          <div><label for="console">Console</label>
+            <select id="console"><option>Nintendo Switch</option><option>Nintendo Switch 2</option><option>PlayStation 5</option><option>PlayStation 4</option><option>Nintendo 3DS</option><option>Xbox Series X|S</option><option>PlayStation 3</option><option>PlayStation 2</option><option>PlayStation</option><option>Super Famicom</option><option>PC-Engine</option><option>PC (Windows)</option><option>Matériel / autre</option><option>Autre</option></select></div>
+        </div>
+        <div class="row">
+          <div><label for="region">Région de l'édition</label>
+            <select id="region"><option>Japon</option><option>Asie</option><option>Hong Kong</option><option>Corée du Sud</option><option>Taïwan</option><option>États-Unis</option><option>Europe</option><option>Autre</option></select></div>
+          <div><label for="format">Format</label>
+            <select id="format"><option value="nv">Non vérifié</option><option value="np">Non précisé par Play-Asia</option><option value="physique">Physique (cartouche / disque)</option><option value="gamekey">Game-Key Card (cartouche-clé, jeu à télécharger)</option><option value="code">Code numérique</option></select></div>
+        </div>
+      </fieldset>
+
+      <fieldset><legend>Lien affilié Play-Asia</legend>
+        <label for="url">Lien copié depuis ton espace affilié</label>
+        <input id="url" type="url" placeholder="https://www.play-asia.com/...?affiliate_id=971294">
+        <div id="urlMsg"></div>
+      </fieldset>
+
+      <fieldset><legend>Langues (vérifiées)</legend>
+        <div class="checks" id="langs"></div>
+        <label for="languesAutres">Autres langues</label><input id="languesAutres" type="text" placeholder="Coréen, cantonais…">
+        <label for="voix">Langues des voix (si indiquées)</label><input id="voix" type="text" placeholder="Japonais, anglais">
+        <label for="languesSource">Source des langues (URL)</label><input id="languesSource" type="url" placeholder="Fiche Play-Asia ou page officielle">
+      </fieldset>
+
+      <fieldset><legend>Compatibilité (vérifiée)</legend>
+        <div class="row">
+          <div><label for="compat">Fonctionne sur une console européenne</label>
+            <select id="compat"><option value="nv">Non vérifié</option><option value="np">Non précisé / ambigu sur la fiche</option><option value="oui">Oui</option><option value="non">Non (zonée)</option></select></div>
+          <div><label for="switch2">Fonctionne sur Switch 2</label>
+            <select id="switch2"><option value="na">Sans objet</option><option value="nv">Non vérifié</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+        </div>
+        <label for="compatTexte">Précision (facultatif)</label><input id="compatTexte" type="text" placeholder="Ex. un compte de la région peut être requis pour le jeu en ligne">
+        <label for="compatSource">Source de la compatibilité (URL)</label><input id="compatSource" type="url">
+      </fieldset>
+
+      <fieldset><legend>Fiche du jeu</legend>
+        <div class="row">
+          <div><label for="genre">Genre</label><input id="genre" type="text"></div>
+          <div><label for="developpeur">Développeur</label><input id="developpeur" type="text"></div>
+        </div>
+        <label for="sortie">Date de sortie (texte libre)</label><input id="sortie" type="text" placeholder="28 janvier 2022">
+        <label for="alerte">Point d’attention (facultatif, affiché en évidence)</label><input id="alerte" type="text" placeholder="Ex. vérifier la prise secteur avant achat">
+        <label for="description">Présentation originale du jeu</label>
+        <textarea id="description" placeholder="Écrite par toi, sans copier de description ni de critique existante."></textarea>
+        <label for="distinction">Ce qui distingue cette édition importée</label>
+        <textarea id="distinction" placeholder="Langues incluses, différences avec l'édition européenne, contenu de la boîte…"></textarea>
+      </fieldset>
+
+      <fieldset><legend>Facultatif</legend>
+        <div class="row">
+          <div><label for="prix">Prix relevé (avec devise)</label><input id="prix" type="text" placeholder="37,99 $ US"></div>
+          <div><label for="prixDate">Date du relevé</label><input id="prixDate" type="date"></div>
+        </div>
+        <div class="hint">Le prix n'est affiché que si la date du relevé est renseignée.</div>
+        <label for="jaquette">URL de la jaquette</label><input id="jaquette" type="url">
+        <div class="checks" style="margin-top:6px"><label><input id="afficherJaquette" type="checkbox"> Afficher la jaquette (seulement si l'usage est autorisé)</label></div>
+      </fieldset>
+    </form>
+
+    <h2 style="margin-top:6px">Avant publication</h2>
+    <ul class="checklist" id="checklist"></ul>
+    <div class="bar">
+      <button id="bValidate" class="primary">Valider la fiche</button>
+      <button id="bValidateAll">Valider toutes les fiches complètes</button>
+      <button id="bPage">Télécharger cette page</button>
+      <button id="bDelete" class="danger">Supprimer</button>
+    </div>
+    <div id="saveMsg" class="hint"></div>
+  </main>
+
+  <section class="previewcol">
+    <div class="stickybox">
+      <h2 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px">Aperçu de la page</h2>
+      <iframe id="preview" title="Aperçu"></iframe>
+    </div>
+  </section>
+</div>
+
+<dialog id="dlg">
+  <form method="dialog">
+    <h2 style="margin-top:0;font-size:1.1rem">Réglages</h2>
+    <label for="sTitre">Nom du site</label><input id="sTitre" type="text">
+    <label for="sAff">Identifiant affilié Play-Asia</label><input id="sAff" type="text">
+    <label for="sBase">Adresse publique du site (pour sitemap et URL canoniques)</label><input id="sBase" type="url" placeholder="https://aka-herosennin-web.github.io/import-japon/">
+    <label for="sMeta">Balise de validation Search Console (code « content » uniquement)</label><input id="sMeta" type="text" placeholder="ex. AbC123…">
+    <div class="checks" style="margin-top:10px"><label><input id="sNoindex" type="checkbox"> Pages en noindex (non indexées par Google)</label></div>
+    <div class="bar" style="margin-top:14px;justify-content:flex-end"><button value="ok" class="primary">Fermer</button></div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+var KEY="generateur-fiches-import-v1";
+var LANGS=["Français","Anglais","Japonais","Chinois","Allemand","Espagnol","Italien"];
+var FIELDS=["type","alerte","titre","edition","console","region","format","url","languesAutres","voix","languesSource","compat","switch2","compatTexte","compatSource","genre","developpeur","sortie","description","distinction","prix","prixDate","jaquette"];
+
+function exemple(){
+  return {id:uid(),statut:"brouillon",maj:new Date().toISOString(),
+    titre:"Légendes Pokémon : Arceus",edition:"Édition japonaise multilingue",console:"Nintendo Switch",region:"Japon",format:"nv",
+    url:"https://www.play-asia.com/fr/pokemon-legends-arceus-multi-language/13/70e7hx",
+    langues:["Français","Anglais","Japonais","Chinois","Allemand","Espagnol","Italien"],languesAutres:"Coréen, cantonais",
+    languesSource:"https://www.play-asia.com/fr/pokemon-legends-arceus-multi-language/13/70e7hx",
+    compat:"oui",switch2:"oui",compatTexte:"Play-Asia indique que le jeu fonctionne sur les consoles vendues dans le monde entier ; un compte de la région peut être requis pour certaines fonctions en ligne.",
+    compatSource:"https://www.play-asia.com/fr/pokemon-legends-arceus-multi-language/13/70e7hx",
+    genre:"Action-RPG",developpeur:"Game Freak",sortie:"28 janvier 2022",
+    description:"Légendes Pokémon : Arceus se déroule à Hisui, l'ancienne région qui deviendra Sinnoh. Le joueur y parcourt de vastes zones ouvertes pour observer, capturer et étudier les Pokémon afin de constituer le tout premier Pokédex de la région. Les captures se font directement dans le décor, et les combats restent au tour par tour.",
+    distinction:"Cette édition est vendue au Japon, mais Play-Asia y indique le français parmi les langues disponibles : pas besoin de l'édition européenne pour jouer en français.",
+    prix:"",prixDate:"",jaquette:"",afficherJaquette:false};
+}
+function uid(){return "f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+var state={settings:{titre:"Jeux japonais en français",aff:"971294",noindex:true,base:"",meta:""},fiches:[],current:null};
+try{var raw=localStorage.getItem(KEY);if(raw){var s=JSON.parse(raw);if(s&&Array.isArray(s.fiches))state=Object.assign(state,s);}}catch(e){}
+if(!state.fiches.length){state.fiches.push(exemple());}
+if(!state.current||!byId(state.current))state.current=state.fiches[0].id;
+
+function byId(id){for(var i=0;i<state.fiches.length;i++)if(state.fiches[i].id===id)return state.fiches[i];return null}
+function cur(){return byId(state.current)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));msg("Enregistré automatiquement dans ce navigateur.")}catch(e){msg("Sauvegarde locale impossible : pense à « Sauvegarder (JSON) ».")}}
+function msg(t){document.getElementById("saveMsg").textContent=t}
+function $(id){return document.getElementById(id)}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
+function isUrl(v){try{var u=new URL(v);return u.protocol==="https:"||u.protocol==="http:"}catch(e){return false}}
+function slug(f){var ed=f.edition||"",co=f.console||"";if(ed.toLowerCase().indexOf(co.toLowerCase())>-1||(f.type&&f.type!=="jeu"))co="";if(/\bps5\b/i.test(ed)&&co==="PlayStation 5")co="";if(/\bps4\b/i.test(ed)&&co==="PlayStation 4")co="";return ((f.titre||"jeu")+" "+ed+" "+co).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,140).replace(/-$/,"")||"fiche"}
+function frDate(iso){if(!iso)return"";var p=iso.split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:iso}
+
+/* ---------- lien affilié ---------- */
+function analyseLien(v){
+  var aff=String(state.settings.aff||"").trim();
+  if(!v)return{etat:"vide"};
+  var u;try{u=new URL(v)}catch(e){return{etat:"invalide"}}
+  if(!/(^|\.)play-asia\.com$/i.test(u.hostname))return{etat:"domaine"};
+  var t=u.searchParams.get("tagid"),a2=u.searchParams.get("affiliate_id");
+  if(t===null&&a2===null)return{etat:"manquant",url:u};
+  if((t!==null&&t!==aff)||(a2!==null&&a2!==aff))return{etat:"autre",tag:t!==null?t:a2};
+  return{etat:"ok"};
+}
+function renderUrlMsg(){
+  var f=cur(),a=analyseLien(f.url),box=$("urlMsg");
+  var html="";
+  if(a.etat==="ok")html='<div class="msg ok">Identifiant affilié présent ('+esc(state.settings.aff)+') : lien conservé tel quel.</div>';
+  else if(a.etat==="manquant")html='<div class="msg warn">Ce lien ne contient pas ton identifiant. Le mieux : copier le lien généré par ton tableau de bord Play-Asia. <button type="button" id="bAddTag">Ajouter tagid='+esc(state.settings.aff)+'</button></div>';
+  else if(a.etat==="autre")html='<div class="msg ko">Ce lien contient un autre identifiant (tagid='+esc(a.tag)+'). Il ne sera pas accepté.</div>';
+  else if(a.etat==="domaine")html='<div class="msg ko">Ce n’est pas un lien play-asia.com.</div>';
+  else if(a.etat==="invalide")html='<div class="msg ko">Adresse invalide.</div>';
+  if(box.dataset.html===html)return;   /* évite de recréer le bouton pendant un clic */
+  box.dataset.html=html;box.innerHTML=html;
+  var b=$("bAddTag");if(b)b.onclick=function(){var c=cur(),u=new URL(c.url);u.searchParams.set("tagid",state.settings.aff);c.url=u.toString();$("url").value=c.url;changed();};
+}
+
+/* ---------- validation ---------- */
+function controles(f){
+  var a=analyseLien(f.url);
+  var langs=(f.langues||[]).length||(f.languesAutres||"").trim();
+  if(f.type&&f.type!=="jeu")return [
+    ["Titre et description courte renseignés",!!(f.titre&&f.edition)],
+    ["Lien Play-Asia avec ton identifiant affilié",a.etat==="ok"],
+    ["Source (URL de la fiche Play-Asia)",isUrl(f.compatSource)||isUrl(f.languesSource)],
+    ["Présentation originale (≥ 200 caractères)",(f.description||"").trim().length>=200],
+    ["Points à connaître (≥ 60 caractères)",(f.distinction||"").trim().length>=60]
+  ];
+  return [
+    ["Titre et édition renseignés",!!(f.titre&&f.edition)],
+    ["Lien Play-Asia avec ton identifiant affilié",a.etat==="ok"],
+    ["Format renseigné (ou « non précisé par Play-Asia »)",f.format!=="nv"],
+    ["Langues cochées",!!langs],
+    ["Source des langues (URL valide)",isUrl(f.languesSource)],
+    ["Compatibilité console européenne renseignée",f.compat!=="nv"],
+    ["Compatibilité Switch 2 vérifiée ou sans objet",f.switch2!=="nv"],
+    ["Source de la compatibilité (URL valide)",isUrl(f.compatSource)],
+    ["Présentation originale (≥ 200 caractères)",(f.description||"").trim().length>=200],
+    ["Ce qui distingue l'édition (≥ 60 caractères)",(f.distinction||"").trim().length>=60]
+  ];
+}
+function pret(f){return controles(f).every(function(c){return c[1]})}
+
+/* ---------- génération des pages ---------- */
+var PAGE_CSS=":root{--bg:#f6f5f2;--surface:#fff;--ink:#1d1d1f;--muted:#5f6368;--line:#e3e1dc;--accent:#c0392b;--ok:#1e7a46;--ok-bg:#e8f5ed;--ko:#9a3412;--ko-bg:#fdeee6;--warn-bg:#fff7e6;--warn-line:#f0c36d}"
++"@media (prefers-color-scheme:dark){:root{--bg:#141414;--surface:#1e1e1f;--ink:#f2f2f2;--muted:#a3a3a3;--line:#333;--accent:#e2574c;--ok:#4ade80;--ok-bg:#15291d;--ko:#fb923c;--ko-bg:#2d1c12;--warn-bg:#2b2416;--warn-line:#8a6d2b}}"
++"*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}a{color:inherit}"
++".wrap{max-width:860px;margin:0 auto;padding:0 16px}header{background:var(--surface);border-bottom:1px solid var(--line)}header .wrap{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px}"
++".brand{font-weight:700;text-decoration:none}.brand span{color:var(--accent)}nav a{color:var(--muted);text-decoration:none;font-size:.9rem}"
++"main{padding:28px 0 36px}h1{font-size:clamp(1.45rem,4vw,2rem);line-height:1.2;margin:0 0 6px;letter-spacing:-.01em}.sub{color:var(--muted);margin:0 0 20px}"
++".answer{display:grid;gap:8px;margin:0 0 22px}.ans{border-radius:12px;padding:12px 14px;border:1px solid var(--line);background:var(--surface)}.ans strong{display:block;font-size:1.05rem}"
++".ans.ok{background:var(--ok-bg);border-color:transparent}.ans.ok strong{color:var(--ok)}.ans.ko{background:var(--ko-bg);border-color:transparent}.ans.ko strong{color:var(--ko)}"
++".cover{float:right;max-width:200px;margin:0 0 12px 18px}.cover img{width:100%;border-radius:8px;display:block}.cover figcaption{font-size:.75rem;color:var(--muted)}"
++"h2{font-size:1.15rem;margin:26px 0 8px}h3{font-size:1rem;margin:16px 0 4px}table{width:100%;border-collapse:collapse;font-size:.95rem}th,td{text-align:left;padding:8px 0;border-bottom:1px solid var(--line);vertical-align:top}th{font-weight:500;color:var(--muted);width:42%;padding-right:12px}"
++".warn{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:10px;padding:12px 14px;font-size:.92rem;margin:20px 0}"
++".btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;padding:11px 16px;border-radius:10px}.small{font-size:.85rem;color:var(--muted)}"
++".sources li{margin:3px 0;word-break:break-all}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none}"
++".card small{display:block;color:var(--muted)}.thumb{width:100%;height:150px;object-fit:contain;background:var(--bg);border-radius:8px;margin-bottom:8px;display:block}.pill{display:inline-block;font-size:.78rem;border-radius:6px;padding:1px 8px;margin-top:6px}.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.ko{background:var(--ko-bg);color:var(--ko)}"
++"footer{background:var(--surface);border-top:1px solid var(--line);padding:16px 0 26px;font-size:.84rem;color:var(--muted)}";
+
+function baseUrl(){var b=String(state.settings.base||"").trim();if(!b)return"";return b.replace(/\/?$/,"/")}
+function shell(title,desc,body,depth,path){
+  var up=depth?"../":"";var b=baseUrl();
+  return '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+  +'<title>'+esc(title)+'</title><meta name="description" content="'+esc(desc)+'">'
+  +(state.settings.noindex?'<meta name="robots" content="noindex,nofollow">':'')+(b&&path!=null?'<link rel="canonical" href="'+esc(b+path)+'">':'')+(path===''&&state.settings.meta?'<meta name="google-site-verification" content="'+esc(state.settings.meta)+'">':'')
+  +'<style>'+PAGE_CSS+'</style></head><body>'
+  +'<header><div class="wrap"><a class="brand" href="'+up+'index.html">'+esc(state.settings.titre)+'<span>.</span></a><nav><a href="'+up+'commander-play-asia.html">Commander sur Play-Asia</a> · <a href="'+up+'a-propos.html">À propos</a></nav></div></header>'
+  +'<main class="wrap">'+body+'</main>'
+  +'<footer><div class="wrap">Ce site contient des liens affiliés Play-Asia : un achat effectué via ces liens peut nous rapporter une commission, sans surcoût pour vous. '
+  +'Site indépendant : il n’est ni créé ni exploité par Play-Asia et n’est pas un service officiel Play-Asia. Sans lien non plus avec Nintendo, Sony, Microsoft ni les éditeurs cités. '
+  +'Les informations de langue et de compatibilité proviennent des sources indiquées sur chaque page.</div></footer></body></html>';
+}
+function langList(f){var l=(f.langues||[]).slice();var o=(f.languesAutres||"").split(",").map(function(s){return s.trim()}).filter(Boolean);return l.concat(o)}
+function hasFr(f){return (f.langues||[]).indexOf("Français")>-1}
+function compatLabel(v){return v==="oui"?"Oui":v==="non"?"Non (édition zonée)":v==="na"?"Sans objet":v==="np"?"Non précisé : à vérifier":"Non vérifié"}
+
+function pageFicheProduit(f){
+  var cover=(f.afficherJaquette&&isUrl(f.jaquette))?'<figure class="cover"><img src="'+esc(f.jaquette)+'" alt="'+esc(f.titre)+'" loading="lazy" onerror="this.parentNode.remove()"><figcaption>Visuel : Play-Asia</figcaption></figure>':'';
+  var para=function(t){return (t||"").split(/\n{2,}/).map(function(p){return p.trim()?'<p>'+esc(p.trim())+'</p>':''}).join("")};
+  var rows=[["Type",f.type==="materiel"?"Matériel":"Objet de collection"]];if(f.developpeur)rows.push(["Fabricant",f.developpeur]);if(f.region&&f.region!=="Autre")rows.push(["Origine",f.region]);
+  var src=isUrl(f.compatSource)?f.compatSource:f.languesSource;
+  var price=(f.prix&&f.prixDate)?'<p class="small">Prix relevé le '+esc(frDate(f.prixDate))+' : <strong>'+esc(f.prix)+'</strong>, hors livraison. Le prix actuel peut différer.</p>':'';
+  var body='<h1>'+esc(f.titre)+'</h1><p class="sub">'+esc(f.edition)+'</p>'
+    +(f.alerte?'<div class="answer"><div class="ans ko"><strong>Point d’attention</strong>'+esc(f.alerte)+'</div></div>':'')+cover
+    +'<h2>Présentation</h2>'+para(f.description)+'<h2>À savoir avant d’acheter</h2>'+para(f.distinction)
+    +'<table>'+rows.map(function(r){return '<tr><th>'+esc(r[0])+'</th><td>'+esc(r[1])+'</td></tr>'}).join("")+'</table>'
+    +price+'<p><a class="btn" href="'+esc(f.url)+'" target="_blank" rel="sponsored nofollow noopener">Voir le prix actuel sur Play-Asia</a></p><p class="small">Lien affilié.</p>'
+    +'<h2>Source</h2><ul class="sources"><li><a href="'+esc(src)+'" rel="nofollow noopener" target="_blank">'+esc(src)+'</a></li></ul>';
+  return shell(f.titre+" – "+f.edition,f.titre+" : présentation, points à vérifier et prix relevé chez Play-Asia.",body,1,"jeux/"+slug(f)+".html");
+}
+function pageFiche(f){
+  if(f.type&&f.type!=="jeu")return pageFicheProduit(f);
+  var fr=hasFr(f),langs=langList(f);
+  var a1='<div class="ans '+(fr?'ok':'ko')+'"><strong>Français : '+(fr?'oui':'non indiqué')+'</strong>'
+    +(fr?'Le français fait partie des langues indiquées pour les textes / sous-titres de cette édition.':'Le français ne figure pas parmi les langues indiquées pour cette édition.')
+    +' <span class="small">(source ci-dessous)</span></div>';
+  var a2=(f.compat==="nv"||f.compat==="np")?(f.compat==="np"&&f.compatTexte?'<div class="ans"><strong>Console européenne : à vérifier</strong>'+esc(f.compatTexte)+'</div>':''):'<div class="ans '+(f.compat==="oui"?'ok':'ko')+'"><strong>Console européenne : '+(f.compat==="oui"?'compatible':'non compatible')+'</strong>'
+    +(f.compat==="oui"?'L’édition est indiquée comme fonctionnant sur une console européenne.':'L’édition est indiquée comme zonée : elle ne fonctionnera pas sur une console européenne.')
+    +(f.compatTexte?' '+esc(f.compatTexte):'')+'</div>';
+  var a0=f.alerte?'<div class="ans ko"><strong>Point d’attention</strong>'+esc(f.alerte)+'</div>':'';
+  var a3=f.format==="gamekey"?'<div class="ans ko"><strong>Game-Key Card : téléchargement obligatoire</strong>La cartouche ne contient pas le jeu complet : elle sert de clé, et le jeu doit être téléchargé (connexion internet et espace de stockage nécessaires).</div>':'';
+  var cover=(f.afficherJaquette&&isUrl(f.jaquette))?'<figure class="cover"><img src="'+esc(f.jaquette)+'" alt="Jaquette de '+esc(f.titre)+'" loading="lazy" onerror="this.parentNode.remove()"><figcaption>Visuel © ayants droit du jeu</figcaption></figure>':'';
+  var rows=[["Console",f.console],["Région de l’édition",f.region],["Format",f.format==="physique"?"Physique (jeu complet sur la cartouche / le disque)":f.format==="gamekey"?"Game-Key Card : la cartouche sert de clé, le jeu se télécharge":f.format==="code"?"Code numérique":f.format==="np"?"Non précisé par Play-Asia : vérifiez la photo et la description de la fiche":"Non vérifié"],
+    ["Langues des textes / sous-titres",langs.join(", ")||"Non renseigné"],["Console européenne",compatLabel(f.compat)]];
+  if(f.voix)rows.splice(4,0,["Langues des voix",f.voix]);
+  if(f.switch2!=="na")rows.push(["Fonctionne sur Switch 2",compatLabel(f.switch2)]);
+  if(f.genre)rows.push(["Genre",f.genre]);if(f.developpeur)rows.push(["Développeur",f.developpeur]);if(f.sortie)rows.push(["Sortie",f.sortie]);
+  var table='<table>'+rows.map(function(r){return '<tr><th>'+esc(r[0])+'</th><td>'+esc(r[1])+'</td></tr>'}).join("")+'</table>';
+  var srcs=[];[["Langues",f.languesSource],["Compatibilité",f.compatSource]].forEach(function(s){if(isUrl(s[1]))srcs.push('<li>'+esc(s[0])+' : <a href="'+esc(s[1])+'" rel="nofollow noopener" target="_blank">'+esc(s[1])+'</a></li>')});
+  var price=(f.prix&&f.prixDate)?'<p class="small">Prix relevé le '+esc(frDate(f.prixDate))+' : <strong>'+esc(f.prix)+'</strong>, hors livraison. Le prix actuel peut différer.</p>':'';
+  var para=function(t){return (t||"").split(/\n{2,}/).map(function(p){return p.trim()?'<p>'+esc(p.trim()).replace(/\n/g,"<br>")+'</p>':''}).join("")};
+  var body='<h1>'+esc(f.titre)+' : '+esc(f.edition)+'</h1><p class="sub">'+esc(f.console)+' · '+esc(f.region)+' — langues et compatibilité de cette édition</p>'
+    +'<div class="answer">'+a0+a1+a2+a3+'</div>'+cover
+    +'<h2>Ce qui distingue cette édition</h2>'+para(f.distinction)
+    +'<h2>Le jeu</h2>'+para(f.description)
+    +'<h2>Caractéristiques</h2>'+table
+    +'<div class="warn"><strong>Avant d’acheter :</strong> vérifiez la fiche du vendeur. Une édition importée peut nécessiter un compte de sa région pour certaines fonctions en ligne ou certains contenus téléchargeables.</div>'
+    +price+'<p><a class="btn" href="'+esc(f.url)+'" target="_blank" rel="sponsored nofollow noopener">Voir le prix actuel sur Play-Asia</a></p><p class="small">Lien affilié.</p>'
+    +'<h2>Sources</h2><ul class="sources">'+(srcs.join("")||'<li>Aucune source renseignée</li>')+'</ul>';
+  var desc=f.titre+" ("+f.edition+", "+f.console+") : "+(fr?"français inclus":"français non indiqué")+", compatibilité "+compatLabel(f.compat).toLowerCase()+" sur console européenne.";
+  return shell(f.titre+" – "+f.edition+" : français et compatibilité",desc,body,1,"jeux/"+slug(f)+".html");
+}
+function pageIndex(list){
+  var groups={};list.forEach(function(f){var g=(f.type&&f.type!=="jeu")?"Matériel et collection":f.console;(groups[g]=groups[g]||[]).push(f)});
+  var body='<h1>'+esc(state.settings.titre)+'</h1><p class="sub">Éditions importées d’Asie : le jeu contient-il le français, et fonctionne-t-il sur une console européenne ? Chaque réponse est sourcée.</p>';
+  var ORD=["Nintendo Switch 2","Nintendo Switch","PlayStation 5","PlayStation 4","PC (Windows)","PlayStation 3","PlayStation 2","PlayStation","Super Famicom","PC-Engine","Matériel et collection"];
+  Object.keys(groups).sort(function(x,y){var i=ORD.indexOf(x),j=ORD.indexOf(y);i=i<0?50:i;j=j<0?50:j;return i-j||x.localeCompare(y)}).forEach(function(c){
+    body+='<h2>'+esc(c)+'</h2><div class="cards">'+groups[c].map(function(f){
+      var th=(f.afficherJaquette&&isUrl(f.jaquette))?'<img class="thumb" src="'+esc(f.jaquette)+'" alt="" loading="lazy" onerror="this.remove()">':'';
+      if(f.type&&f.type!=="jeu")return '<a class="card" href="jeux/'+slug(f)+'.html">'+th+'<strong>'+esc(f.titre)+'</strong><small>'+esc(f.edition)+'</small>'+(f.alerte?'<span class="pill ko">À vérifier</span>':'')+'</a>';
+      var np=!(f.langues||[]).length;
+      return '<a class="card" href="jeux/'+slug(f)+'.html">'+th+'<strong>'+esc(f.titre)+'</strong><small>'+esc(f.edition)+'</small>'
+      +'<span class="pill '+(hasFr(f)?'ok':'ko')+'">'+(hasFr(f)?'Français inclus':np?'Français non indiqué':'Pas de français')+'</span> '
+      +'<span class="pill '+(f.compat==="oui"?'ok':'ko')+'">'+(f.compat==="oui"?'Console EU : oui':f.compat==="non"?'Console EU : non':'Console EU : à vérifier')+'</span>'
+      +(f.format==="gamekey"?' <span class="pill ko">Game-Key Card</span>':'')+'</a>'}).join("")+'</div>';
+  });
+  if(!list.length)body+='<p>Aucune fiche validée pour le moment.</p>';
+  body+='<h2>Avant de commander</h2><p><a href="commander-play-asia.html">Commander des jeux japonais sur Play-Asia depuis la France : frais, livraison et compatibilité</a></p>';
+  return shell(state.settings.titre,"Jeux japonais et asiatiques importés : langues incluses et compatibilité avec les consoles européennes, avec sources.",body,0,"");
+}
+function pageAbout(){
+  var body='<h1>À propos &amp; affiliation</h1>'
+  +'<p>Ce site indique, pour des éditions de jeux vendues en Asie, les langues incluses et la compatibilité avec les consoles européennes. Chaque information est accompagnée de sa source.</p>'
+  +'<h2>Liens affiliés</h2><p>Les boutons « Voir le prix actuel sur Play-Asia » sont des liens affiliés : un achat effectué après un clic peut nous rapporter une commission, sans surcoût pour vous.</p>'
+  +'<h2>Indépendance</h2><p>Ce site n’est ni créé ni exploité par Play-Asia et n’est pas un service officiel de Play-Asia : il participe uniquement à son programme d’affiliation. Il n’a aucun lien avec Nintendo, Sony, Microsoft ni les éditeurs cités. Les marques et visuels appartiennent à leurs propriétaires respectifs.</p>'
+  +'<h2>Fiabilité</h2><p>Les informations proviennent des sources indiquées au moment de leur vérification. Vérifiez toujours la fiche du vendeur avant d’acheter.</p>';
+  return shell("À propos – "+state.settings.titre,"Fonctionnement du site, liens affiliés et indépendance.",body,0,"a-propos.html");
+}
+
+var GUIDE_DATE="21/10/2026";
+function pageGuide(list){
+  var S={ship:"https://www.play-asia.com/info/helpshippingoptions",ioss:"https://www.play-asia.com/info/helpioss",cust:"https://www.play-asia.com/info/helpcustoms",
+    pay:"https://www.play-asia.com/info/helppayment",eco:"https://www.economie.gouv.fr/particuliers/mes-droits-conso/bien-consommer/tout-savoir-sur-la-taxe-sur-les-petits-colis",ref:"https://www.play-asia.com/info/helprefund",
+    ec:"https://france.representation.ec.europa.eu/informations-et-evenements/informations/taxe-petits-colis-garantir-davantage-dequite-aux-entreprises-et-mieux-proteger-les-consommateurs-2026-07-01_fr"};
+  function a(u,t){return '<a href="'+u+'" target="_blank" rel="nofollow noopener">'+t+'</a>'}
+  var fiches=list.slice(0,6).map(function(f){return '<li><a href="jeux/'+slug(f)+'.html">'+esc(f.titre)+' — '+esc(f.edition)+'</a></li>'}).join("");
+  var body='<h1>Commander des jeux japonais sur Play-Asia depuis la France : frais, livraison et compatibilité</h1>'
+  +'<p class="sub">Guide pratique établi à partir des pages d’aide officielles de Play-Asia et des règles européennes. Ce n’est pas un avis client : nous n’y relatons aucune commande personnelle. Informations vérifiées le '+GUIDE_DATE+'.</p>'
+  +'<div class="answer"><div class="ans"><strong>En bref</strong>'
+  +'Sous 150 €, la TVA est payée au moment de la commande. Au-delà, TVA et frais éventuels se règlent à la livraison. Trois modes de livraison, de 3 à 21 jours ouvrables environ. Un jeu ouvert n’est pas repris, sauf défaut : vérifiez langues et compatibilité avant d’acheter.</div></div>'
+  +'<h2>Livraison : trois options</h2><table>'
+  +'<tr><th>Economy (poste)</th><td>Environ 14 à 21 jours ouvrables, parfois jusqu’à 30. Réservé aux colis de moins de 2 kg et aux commandes de moins de 400 $. Suivi disponible, colis enregistré.</td></tr>'
+  +'<tr><th>EMS Speedpost (Hong Kong Post)</th><td>Environ 3 à 5 jours ouvrables. Suivi via Hong Kong Post puis le transporteur local.</td></tr>'
+  +'<tr><th>Courier (UPS ou FedEx)</th><td>Environ 5 à 7 jours ouvrables. Suivi en ligne en continu.</td></tr></table>'
+  +'<p class="small">Play-Asia précise que ces délais sont indicatifs et qu’il « ne garantit pas » les délais affichés ; des retards en douane sont possibles. Source : '+a(S.ship,"options de livraison Play-Asia")+'.</p>'
+  +'<h2>TVA et douane : le seuil de 150 €</h2>'
+  +'<p><strong>Commande physique de moins de 150 € :</strong> Play-Asia applique le guichet unique européen (IOSS). La TVA est facturée au moment du paiement, et vous n’avez en principe rien à payer à la livraison au titre de la TVA. Vérifiez qu’elle apparaît bien dans le récapitulatif de votre commande avant de payer. Source : '+a(S.ioss,"page IOSS de Play-Asia")+'.</p>'
+  +'<p><strong>Au-delà de 150 € :</strong> la TVA est due à la livraison, auprès du transporteur, qui peut aussi facturer des frais de dédouanement. Play-Asia indique que vous êtes considéré comme l’importateur et que ces frais, qu’il ne contrôle pas, restent à votre charge. Source : '+a(S.cust,"page douane de Play-Asia")+'.</p>'
+  +'<p><strong>Depuis le 1er juillet 2026</strong>, l’Union européenne applique un droit de douane forfaitaire de 3 € par catégorie d’article déclarée sur les envois de 150 € maximum. Selon la Commission européenne, il est perçu auprès des plateformes ou des entreprises qui vendent et transportent les marchandises, et non réclamé au consommateur à la livraison ; il peut en revanche se répercuter sur le prix. La taxe française de 2 € par article, appliquée du 1er mars au 30 juin 2026, est suspendue depuis cette date : les deux ne se cumulent pas. Une redevance européenne de traitement des colis est annoncée à partir du 1er novembre 2026, selon des modalités encore à préciser. Sources : '+a(S.ec,"Commission européenne")+', '+a(S.eco,"ministère de l’Économie")+'.</p>'
+  +'<div class="warn"><strong>À prévoir :</strong> au-delà de 150 €, le montant payé sur le site n’est pas le coût final. Ajoutez la TVA (20 % en France), les éventuels droits de douane et les frais de dédouanement du transporteur, réglés à la livraison.</div>'
+  +'<h2>Moyens de paiement</h2>'
+  +'<p>Carte Visa ou Mastercard (avec vérification 3D Secure possible), PayPal, SEPA et autres moyens locaux selon les pays, UnionPay, Diners Club, Bitcoin, ou virement bancaire en dollars (déconseillé par Play-Asia sous 150 $). Le paiement PayPal étant débité immédiatement, Play-Asia le déconseille pour les précommandes. Source : '+a(S.pay,"moyens de paiement Play-Asia")+'.</p>'
+  +'<h2>Retours, défauts et remboursements</h2>'
+  +'<p>Les conditions commerciales de Play-Asia sont plus restrictives que le droit de rétractation de 14 jours auquel on est habitué chez les marchands européens. Elles ne suppriment pas pour autant les droits légaux qui peuvent s’appliquer au consommateur ; en cas de litige, renseignez-vous auprès d’un service d’information des consommateurs.</p>'
+  +'<h3>Retour de convenance (le produit ne vous convient plus)</h3><ul>'
+  +'<li><strong>Jeu ouvert :</strong> non repris.</li>'
+  +'<li><strong>Produit neuf et scellé :</strong> retour à demander dans les 21 jours suivant l’expédition ; port retour à vos frais et frais de remise en stock pouvant atteindre 50 %.</li></ul>'
+  +'<h3>Réclamation (produit défectueux, erroné ou incomplet)</h3><ul>'
+  +'<li><strong>Produit défectueux :</strong> à signaler dans les 10 jours suivant la réception, photos ou vidéo à l’appui ; garantie de 45 jours (6 mois pour l’électronique).</li>'
+  +'<li><strong>Dommages de transport :</strong> non couverts par la garantie Play-Asia ; vérifiez l’état du colis à la réception.</li>'
+  +'<li><strong>Erreur de produit ou article manquant :</strong> à signaler dans les 21 jours ; frais pris en charge par Play-Asia après vérification.</li>'
+  +'</ul><h3>Remboursement et annulation</h3><ul>'
+  +'<li><strong>Remboursement :</strong> de préférence en crédit sur le compte Play-Asia ; sur PayPal dans les 3 mois, sur carte dans les 6 mois. Droits, taxes et frais de port ne sont pas remboursés.</li>'
+  +'<li><strong>Précommande :</strong> annulable sans motif jusqu’à la date limite de précommande.</li></ul>'
+  +'<p class="small">Source : '+a(S.ref,"retours et remboursements Play-Asia")+'.</p>'
+  +'<h2>Langues et compatibilité : ce qu’il faut vérifier</h2><ul>'
+  +'<li><strong>Le français :</strong> la mention « Multi-Language » ne suffit pas. Vérifiez la liste des langues de l’édition précise, et distinguez textes et voix.</li>'
+  +'<li><strong>La console :</strong> les fiches Play-Asia indiquent si le jeu « fonctionne sur tous les systèmes vendus dans le monde entier ». Un compte de la région peut être requis pour certaines fonctions en ligne.</li>'
+  +'<li><strong>Le format :</strong> certains jeux Switch 2 sont vendus en Game-Key Card : la cartouche sert de clé et le jeu doit être téléchargé.</li></ul>'
+  +(fiches?'<p>Nos fiches détaillent ces points édition par édition :</p><ul>'+fiches+'</ul><p><a href="index.html">Voir toutes les fiches</a></p>':'')
+  +'<h2>Avant de commander : la liste de contrôle</h2><ul>'
+  +'<li>Le français figure-t-il dans les langues de cette édition précise ?</li>'
+  +'<li>La fiche indique-t-elle un fonctionnement sur les consoles du monde entier ?</li>'
+  +'<li>Cartouche complète ou Game-Key Card ?</li>'
+  +'<li>Le total dépasse-t-il 150 € (TVA et frais à la livraison) ?</li>'
+  +'<li>Quel délai de livraison pouvez-vous accepter ?</li></ul>'
+  +'<p class="small">Ce guide résume des conditions qui peuvent évoluer : seules les pages officielles de Play-Asia et de l’administration font foi au moment de votre commande.</p>';
+  return shell("Commander sur Play-Asia depuis la France : frais, livraison, douane","Livraison, TVA et seuil de 150 €, droit de 3 € sur les petits colis, retours et compatibilité : ce qu’il faut savoir avant de commander un jeu japonais sur Play-Asia.",body,0,"commander-play-asia.html");
+}
+
+/* ---------- interface ---------- */
+var langBox=$("langs");
+LANGS.forEach(function(l){var lab=document.createElement("label");lab.innerHTML='<input type="checkbox" value="'+l+'"> '+l;langBox.appendChild(lab)});
+
+function fillForm(){
+  var f=cur();
+  FIELDS.forEach(function(k){$(k).value=f[k]==null?"":f[k]});
+  $("afficherJaquette").checked=!!f.afficherJaquette;
+  if(!$("type").value)$("type").value="jeu";
+  [].forEach.call(langBox.querySelectorAll("input"),function(i){i.checked=(f.langues||[]).indexOf(i.value)>-1});
+  refresh();
+}
+function readForm(){
+  var f=cur();
+  FIELDS.forEach(function(k){f[k]=$(k).value});
+  f.afficherJaquette=$("afficherJaquette").checked;
+  f.langues=[].filter.call(langBox.querySelectorAll("input"),function(i){return i.checked}).map(function(i){return i.value});
+}
+var timer=null;
+function changed(){
+  readForm();var f=cur();
+  if(f.statut==="validee"){f.statut="brouillon";msg("Fiche modifiée : elle repasse en brouillon jusqu’à nouvelle validation.")}
+  f.maj=new Date().toISOString();
+  refresh();clearTimeout(timer);timer=setTimeout(save,400);
+}
+function refresh(){
+  var f=cur();
+  renderUrlMsg();
+  var cs=controles(f);
+  $("checklist").innerHTML=cs.map(function(c){return '<li class="'+(c[1]?'done':'')+'">'+esc(c[0])+'</li>'}).join("");
+  $("bValidate").disabled=!pret(f)||f.statut==="validee";
+  $("bValidate").textContent=f.statut==="validee"?"Fiche validée ✓":"Valider la fiche";
+  $("preview").srcdoc=pageFiche(f);
+  renderList();
+}
+function renderList(){
+  $("list").innerHTML=state.fiches.map(function(f){
+    return '<button class="item" data-id="'+f.id+'" aria-current="'+(f.id===state.current)+'">'+esc(f.titre||"Sans titre")
+    +'<small>'+esc(f.edition||"")+' · '+esc(f.console||"")+'</small><span class="tag '+(f.statut==="validee"?'ok':'draft')+'">'+(f.statut==="validee"?'Validée':'Brouillon')+'</span></button>'}).join("");
+  [].forEach.call($("list").querySelectorAll(".item"),function(b){b.onclick=function(){state.current=b.dataset.id;save();fillForm()}});
+}
+function download(name,content,type){
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([content],{type:type||"text/html"}));a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
+}
+
+$("form").addEventListener("input",changed);
+$("form").addEventListener("change",changed);
+$("bNew").onclick=function(){var f=exemple();FIELDS.forEach(function(k){f[k]=""});f.console="Nintendo Switch";f.region="Japon";f.format="nv";f.compat="nv";f.switch2="na";f.langues=[];f.titre="";state.fiches.unshift(f);state.current=f.id;save();fillForm();$("titre").focus()};
+$("bDelete").onclick=function(){var f=cur();if(!confirm("Supprimer la fiche « "+(f.titre||"Sans titre")+" » ?"))return;state.fiches=state.fiches.filter(function(x){return x.id!==f.id});if(!state.fiches.length)state.fiches.push(exemple());state.current=state.fiches[0].id;save();fillForm()};
+$("bValidate").onclick=function(){var f=cur();if(!pret(f))return;f.statut="validee";save();refresh();msg("Fiche validée : elle sera incluse dans l’export du site.")};
+$("bValidateAll").onclick=function(){var todo=state.fiches.filter(function(f){return f.statut!=="validee"&&pret(f)});if(!todo.length){alert("Aucune fiche complète en attente.");return}if(!confirm(todo.length+" fiche(s) complète(s) vont être validées. Les as-tu relues ?"))return;todo.forEach(function(f){f.statut="validee"});save();refresh();msg(todo.length+" fiche(s) validée(s).")};
+$("bPage").onclick=function(){var f=cur();download(slug(f)+".html",pageFiche(f))};
+$("bExportJson").onclick=function(){download("fiches-import-"+new Date().toISOString().slice(0,10)+".json",JSON.stringify(state,null,2),"application/json")};
+$("fImport").onchange=function(e){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(){try{var s=JSON.parse(r.result);if(!Array.isArray(s.fiches))throw 0;if(s.settings){if(!state.settings.base&&s.settings.base)state.settings.base=s.settings.base;}var known={},n=0,u=0,k=0;state.fiches.forEach(function(x,i){known[x.id]=i});s.fiches.forEach(function(x){if(!(x.id in known)){state.fiches.push(x);n++;return}var old=state.fiches[known[x.id]];if(old.statut!=="validee"){state.fiches[known[x.id]]=x;u++}else{if(!old.jaquette&&x.jaquette){old.jaquette=x.jaquette;old.afficherJaquette=x.afficherJaquette}k++}});if(s.fiches[0])state.current=s.fiches[0].id;save();fillForm();msg(n+" ajoutée(s), "+u+" brouillon(s) mis à jour, "+k+" fiche(s) validée(s) conservée(s).")}catch(err){alert("Fichier non reconnu.")}};r.readAsText(file);e.target.value=""};
+$("bExportSite").onclick=function(){
+  var ok=state.fiches.filter(function(f){return f.statut==="validee"&&pret(f)});
+  if(!ok.length){alert("Aucune fiche validée : valide au moins une fiche avant d’exporter.");return}
+  if(typeof JSZip==="undefined"){alert("L’export .zip nécessite une connexion internet (bibliothèque JSZip). Utilise « Télécharger cette page » en attendant.");return}
+  var z=new JSZip();z.file("index.html",pageIndex(ok));z.file("a-propos.html",pageAbout());z.file("commander-play-asia.html",pageGuide(ok));
+  ok.forEach(function(f){z.file("jeux/"+slug(f)+".html",pageFiche(f))});
+  var b=baseUrl();
+  if(b&&!state.settings.noindex){var today=new Date().toISOString().slice(0,10);
+    var urls=["","commander-play-asia.html","a-propos.html"].concat(ok.map(function(f){return "jeux/"+slug(f)+".html"}));
+    z.file("sitemap.xml",'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+urls.map(function(u){return "  <url><loc>"+esc(b+u)+"</loc><lastmod>"+today+"</lastmod></url>"}).join("\n")+"\n</urlset>\n");
+    z.file("robots.txt","User-agent: *\nAllow: /\nSitemap: "+b+"sitemap.xml\n");
+    z.file(".nojekyll","");
+  } else if(!state.settings.noindex){alert("Indique l’adresse publique du site dans Réglages pour générer le sitemap.");}
+  /* contrôle des liens internes avant téléchargement */
+  var broken=[];
+  var pages={};Object.keys(z.files).forEach(function(n){pages[n]=1});
+  var srcs={"index.html":pageIndex(ok),"a-propos.html":pageAbout(),"commander-play-asia.html":pageGuide(ok)};ok.forEach(function(f){srcs["jeux/"+slug(f)+".html"]=pageFiche(f)});
+  Object.keys(srcs).forEach(function(name){var dir=name.indexOf("/")>-1?name.replace(/[^\/]+$/,""):"";
+    (srcs[name].match(/href="([^"#]+)"/g)||[]).forEach(function(m){var h=m.slice(6,-1);if(/^(https?:|mailto:)/.test(h))return;
+      var parts=(dir+h).split("/"),out=[];parts.forEach(function(x){if(x==="..")out.pop();else if(x&&x!==".")out.push(x)});var t=out.join("/");
+      if(!pages[t])broken.push(name+" → "+h)})});
+  if(broken.length){alert("Export annulé : liens internes cassés\n"+broken.join("\n"));return}
+  z.generateAsync({type:"blob"}).then(function(b){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="site-jeux-import.zip";a.click();msg(ok.length+" fiche(s) validée(s) exportée(s), liens internes vérifiés.")});
+};
+$("bSettings").onclick=function(){$("sTitre").value=state.settings.titre;$("sAff").value=state.settings.aff;$("sNoindex").checked=!!state.settings.noindex;$("sBase").value=state.settings.base||"";$("sMeta").value=state.settings.meta||"";$("dlg").showModal()};
+$("dlg").addEventListener("close",function(){state.settings.titre=$("sTitre").value.trim()||"Jeux japonais en français";state.settings.aff=$("sAff").value.trim()||"971294";state.settings.noindex=$("sNoindex").checked;state.settings.base=$("sBase").value.trim();state.settings.meta=$("sMeta").value.trim().replace(/^.*content="([^"]+)".*$/,"$1");save();refresh()});
+
+fillForm();
+})();
+</script>
+</body>
+</html>
