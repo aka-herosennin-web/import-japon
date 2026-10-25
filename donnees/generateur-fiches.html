@@ -311,7 +311,7 @@ function pageFiche(f){
   var srcs=[];[["Langues",f.languesSource],["Compatibilité",f.compatSource]].forEach(function(s){if(isUrl(s[1]))srcs.push('<li>'+esc(s[0])+' : <a href="'+esc(s[1])+'" rel="nofollow noopener" target="_blank">'+esc(s[1])+'</a></li>')});
   var price=(f.prix&&f.prixDate)?'<p class="small">Prix relevé le '+esc(frDate(f.prixDate))+' : <strong>'+esc(f.prix)+'</strong>, hors livraison. Le prix actuel peut différer.</p>':'';
   var para=function(t){return (t||"").split(/\n{2,}/).map(function(p){return p.trim()?'<p>'+esc(p.trim()).replace(/\n/g,"<br>")+'</p>':''}).join("")};
-  var body='<h1>'+esc(f.titre)+' : '+esc(f.edition)+'</h1><p class="sub">'+esc(f.console)+' · '+esc(f.region)+' — langues et compatibilité de cette édition</p>'
+  var body='<h1>'+esc(f.titre)+' : '+esc(f.edition)+'</h1><p class="sub">Édition '+esc(f.console)+(f.region&&f.region!=="Autre"?' vendue en '+(f.region==="Japon"?'Japon':esc(f.region)):'')+' : langues incluses, compatibilité et format.</p>'
     +'<div class="answer">'+a0+a1+a2+a3+'</div>'+cover
     +'<h2>Ce qui distingue cette édition</h2>'+para(f.distinction)
     +'<h2>Le jeu</h2>'+para(f.description)
